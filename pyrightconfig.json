@@ -3,5 +3,5 @@
   "include": ["src", "test"],
   "exclude": ["**/node_modules", "**/__pycache__"],
   "venvPath": ".",
-  "venv": ".venv",
+  "venv": ".venv"
 }
