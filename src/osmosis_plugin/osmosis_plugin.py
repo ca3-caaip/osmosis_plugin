@@ -1,6 +1,7 @@
 import re
 import uuid
 from decimal import Decimal
+from typing import Union
 
 import pandas as pd
 from senkalib.caaj_journal import CaajJournal
@@ -577,14 +578,17 @@ class OsmosisPlugin:
         return caaj
 
     @classmethod
-    def _get_token_amount(cls, value: str) -> int:
+    def _get_token_amount(cls, value: str) -> str:
+        token_amount_original = re.search(r"\d+", value)
+        if token_amount_original is None:
+            raise ValueError("token_amount_original is None")
 
         if "pool" in value:
-            token_amount = str(Decimal(re.search(r"\d+", value).group()) / Decimal(EXA))
+            token_amount = str(Decimal(token_amount_original.group()) / Decimal(EXA))
 
         else:
             token_amount = str(
-                Decimal(re.search(r"\d+", value).group()) / Decimal(MEGA)
+                Decimal(token_amount_original.group()) / Decimal(MEGA)
             )
         return token_amount
 
@@ -593,8 +597,12 @@ class OsmosisPlugin:
         return str(uuid.uuid4())
 
     @classmethod
-    def _get_token_original_id(cls, value: str) -> str:
-        token_original_id = value[re.search(r"\d+", value).end() :]
+    def _get_token_original_id(cls, value: str) -> Union[str,None]:
+        token_original_id_original = re.search(r"\d+", value)
+        if token_original_id_original is None:
+            raise ValueError("token_original_id_original is None")
+
+        token_original_id = value[token_original_id_original.end() :]
         if token_original_id == "uosmo" or token_original_id == "":
             token_original_id = None
         elif token_original_id == "uion":
@@ -610,7 +618,7 @@ class OsmosisPlugin:
         return attribute_data
 
     @classmethod
-    def _get_attributes_list(cls, transaction: Transaction, event_type: str) -> dict:
+    def _get_attributes_list(cls, transaction: Transaction, event_type: str) -> list:
         logs = transaction.get_transaction()["data"]["logs"]
         events_list = []
         for log in logs:
