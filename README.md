@@ -18,7 +18,6 @@ $ docker-compose down
 
 $ docker-compose down --rmi all --volumes --remove-orphans
 
-
 ## for developers
 
 1. Install poetry to set up python environment
@@ -43,8 +42,6 @@ $ pre-commit install
 $ source /app/.venv/bin/activate
 
 ```
-
-
 
 ### For test
 
