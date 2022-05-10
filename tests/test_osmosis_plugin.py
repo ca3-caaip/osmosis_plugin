@@ -3,11 +3,9 @@ import json
 import os
 from pathlib import Path
 from typing import Union
-from unittest.mock import MagicMock, patch
+from unittest.mock import MagicMock
 
-import pandas as pd
 from senkalib.chain.osmosis.osmosis_transaction import OsmosisTransaction
-from senkalib.senka_lib import SenkaLib
 
 from osmosis_plugin.osmosis_plugin import OsmosisPlugin
 
@@ -15,7 +13,7 @@ from osmosis_plugin.osmosis_plugin import OsmosisPlugin
 class TestOsmosisPlugin:
     @classmethod
     def get_token_table_mock(cls):
-        def mock_get_symbol(chain: str, token_original_id: str) -> Union[str,None]:
+        def mock_get_symbol(chain: str, token_original_id: str) -> Union[str, None]:
             if chain == "osmosis" and token_original_id is None:
                 return "osmo"
             elif (
