@@ -4,7 +4,6 @@ import pandas as pd
 from senkalib.chain.osmosis.osmosis_transaction_generator import (
     OsmosisTransactionGenerator,
 )
-from senkalib.senka_lib import SenkaLib
 from senkalib.senka_setting import SenkaSetting
 from senkalib.token_original_id_table import TokenOriginalIdTable
 
