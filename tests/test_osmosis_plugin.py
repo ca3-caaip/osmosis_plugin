@@ -1,16 +1,14 @@
 import csv
 import json
-from unittest.mock import patch
-
-from senkalib.chain.osmosis.osmosis_transaction import OsmosisTransaction
-
-from osmosis_plugin.osmosis_plugin import OsmosisPlugin
-from senkalib.senka_lib import SenkaLib
-
-import pandas as pd
 import os
 from pathlib import Path
-from unittest.mock import MagicMock
+from unittest.mock import MagicMock, patch
+
+import pandas as pd
+from senkalib.chain.osmosis.osmosis_transaction import OsmosisTransaction
+from senkalib.senka_lib import SenkaLib
+
+from osmosis_plugin.osmosis_plugin import OsmosisPlugin
 
 
 class TestOsmosisPlugin:
