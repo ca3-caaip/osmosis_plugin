@@ -1,4 +1,4 @@
-name: senka
+name: osmosis_plugin
 
 on:
   push:
