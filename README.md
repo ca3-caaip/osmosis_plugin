@@ -45,21 +45,15 @@ $ source /app/.venv/bin/activate
 
 ### For test
 
-in the container
-
 ```
-$ cd /app
-$ pip install -e .[test]
+$ poetry shell
 $ pytest --cov=src --cov-branch --cov-report=term-missing -vv
 ```
 
 ### For execution
 
-in the container
-
 ```
-$ cd /app
-$ pip install -e .[main]
+$ poetry shell
 $ python src/main.py address > result.csv
 e.x. $ python src/main.py osmo1f2rznaz9s6cwevtfwyq8daguajqaac0yahsgqm > result.csv
 ```
