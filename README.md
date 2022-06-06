@@ -50,7 +50,6 @@ $ poetry shell
 $ pytest --cov=src --cov-branch --cov-report=term-missing -vv
 ```
 
-
 ### For execution
 
 in the container
