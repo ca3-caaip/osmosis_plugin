@@ -18,7 +18,7 @@ if __name__ == "__main__":
     settings = SenkaSetting({})
     token_original_ids = TokenOriginalIdTable(TOKEN_ORIGINAL_IDS_URL)
     transactions = OsmosisTransactionGenerator.get_transactions(
-        settings, address, None, {}
+        {"type": "address", "data": address}
     )
     for transaction in transactions:
         if OsmosisPlugin.can_handle(transaction):
