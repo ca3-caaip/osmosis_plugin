@@ -61,9 +61,15 @@ class OsmosisPlugin:
             )
             return caaj  # it ignores fee because this address does not pay fee in case of MsgUpdateClient.
         else:
-            raise Exception(
-                f"This type of transaction is not defined. transaction_id: {transaction.get_transaction_id()}"
-            )
+            if transaction_type:
+                raise Exception(
+                    f"This type of transaction is not defined. transaction_id: {transaction.get_transaction_id()}, transaction_type: {transaction_type}"
+                )
+            else:
+                raise Exception(
+                    f"Can not parse transaction_type. transaction_id: {transaction.get_transaction_id()}"
+                )
+
 
         transaction_fee = transaction.get_transaction_fee()
         if transaction_fee != 0:
