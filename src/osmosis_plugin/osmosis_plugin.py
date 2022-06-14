@@ -62,7 +62,9 @@ class OsmosisPlugin:
             return caaj  # it ignores fee because this address does not pay fee in case of MsgUpdateClient.
         elif transaction_type == "MsgBeginUnlocking":
             caaj.extend(
-                OsmosisPlugin._get_caaj_begin_unlocking(address, transaction, token_table)
+                OsmosisPlugin._get_caaj_begin_unlocking(
+                    address, transaction, token_table
+                )
             )
         else:
             if transaction_type:
@@ -71,7 +73,7 @@ class OsmosisPlugin:
                 )
             else:
                 raise Exception(
-                    f"Can not parse transaction_type. transaction_id: {transaction.get_transaction_id()}"
+                    f"Plugin can not parse transaction_type. transaction_id: {transaction.get_transaction_id()}"
                 )
 
         transaction_fee = transaction.get_transaction_fee()
@@ -644,5 +646,5 @@ class OsmosisPlugin:
     ) -> list:
         caaj = []
         if transaction.get_transaction_fee() != 0:
-            caaj = OsmosisPlugin._get_caaj_fee(cls, transaction, token_table)
+            caaj = OsmosisPlugin._get_caaj_fee(address, transaction, token_table)
         return caaj
