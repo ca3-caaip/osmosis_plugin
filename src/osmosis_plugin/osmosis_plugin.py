@@ -66,6 +66,8 @@ class OsmosisPlugin:
                     address, transaction, token_table
                 )
             )
+        elif transaction_type == "MsgVote":
+            caaj.extend(OsmosisPlugin._get_caaj_vote(address, transaction, token_table))
         else:
             if transaction_type:
                 raise Exception(
@@ -642,6 +644,15 @@ class OsmosisPlugin:
 
     @classmethod
     def _get_caaj_begin_unlocking(
+        cls, address: str, transaction: Transaction, token_table: TokenOriginalIdTable
+    ) -> list:
+        caaj = []
+        if transaction.get_transaction_fee() != 0:
+            caaj = OsmosisPlugin._get_caaj_fee(address, transaction, token_table)
+        return caaj
+
+    @classmethod
+    def _get_caaj_vote(
         cls, address: str, transaction: Transaction, token_table: TokenOriginalIdTable
     ) -> list:
         caaj = []
