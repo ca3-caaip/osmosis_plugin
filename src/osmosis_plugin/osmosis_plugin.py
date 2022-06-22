@@ -60,10 +60,23 @@ class OsmosisPlugin:
                 OsmosisPlugin._get_caaj_update_client(address, transaction, token_table)
             )
             return caaj  # it ignores fee because this address does not pay fee in case of MsgUpdateClient.
-        else:
-            raise Exception(
-                f"This type of transaction is not defined. transaction_id: {transaction.get_transaction_id()}"
+        elif transaction_type == "MsgBeginUnlocking":
+            caaj.extend(
+                OsmosisPlugin._get_caaj_begin_unlocking(
+                    address, transaction, token_table
+                )
             )
+        elif transaction_type == "MsgVote":
+            caaj.extend(OsmosisPlugin._get_caaj_vote(address, transaction, token_table))
+        else:
+            if transaction_type:
+                raise Exception(
+                    f"This type of transaction is not defined. transaction_id: {transaction.get_transaction_id()}, transaction_type: {transaction_type}"
+                )
+            else:
+                raise Exception(
+                    f"Plugin can not parse transaction_type. transaction_id: {transaction.get_transaction_id()}"
+                )
 
         transaction_fee = transaction.get_transaction_fee()
         if transaction_fee != 0:
@@ -628,3 +641,21 @@ class OsmosisPlugin:
         attributes_list = list(map(lambda event: event["attributes"], events_list))
 
         return attributes_list
+
+    @classmethod
+    def _get_caaj_begin_unlocking(
+        cls, address: str, transaction: Transaction, token_table: TokenOriginalIdTable
+    ) -> list:
+        caaj = []
+        if transaction.get_transaction_fee() != 0:
+            caaj = OsmosisPlugin._get_caaj_fee(address, transaction, token_table)
+        return caaj
+
+    @classmethod
+    def _get_caaj_vote(
+        cls, address: str, transaction: Transaction, token_table: TokenOriginalIdTable
+    ) -> list:
+        caaj = []
+        if transaction.get_transaction_fee() != 0:
+            caaj = OsmosisPlugin._get_caaj_fee(address, transaction, token_table)
+        return caaj
