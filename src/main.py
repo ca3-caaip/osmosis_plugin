@@ -1,7 +1,7 @@
 import sys
 
 import pandas as pd
-from senkalib.chain.osmosis.osmosis_transaction_generator import (
+from senkalib.platform.osmosis.osmosis_transaction_generator import (
     OsmosisTransactionGenerator,
 )
 from senkalib.senka_setting import SenkaSetting
