@@ -4,14 +4,10 @@ import os
 from pathlib import Path
 from typing import Union
 from unittest.mock import MagicMock, patch
-import requests
 
-<<<<<<< HEAD
-from senkalib.chain.osmosis.osmosis_transaction import OsmosisTransaction
-from senkalib.token_original_id_table import TokenOriginalIdTable
-=======
+import requests
 from senkalib.platform.osmosis.osmosis_transaction import OsmosisTransaction
->>>>>>> master
+from senkalib.token_original_id_table import TokenOriginalIdTable
 
 from osmosis_plugin.osmosis_plugin import OsmosisPlugin
 
@@ -62,13 +58,16 @@ class TestOsmosisPlugin:
     def test_get_caajs_fee_not_zero(self, get, DictReader):
         get.side_effect = MagicMock()
         csv_file = open(
-            Path("%s/data/token_original_ids/token_original_id.csv" % os.path.dirname(__file__))
+            Path(
+                "%s/data/token_original_ids/token_original_id.csv"
+                % os.path.dirname(__file__)
+            )
         )
         caaj_dict_list = csv.DictReader(csv_file)
         DictReader.return_value = caaj_dict_list
         test_data = TestOsmosisPlugin._get_test_data("ibc_transfer")
         transaction = OsmosisTransaction(test_data)
-        #mock = TestOsmosisPlugin.get_token_table_mock()
+        # mock = TestOsmosisPlugin.get_token_table_mock()
         token_table = TokenOriginalIdTable("")
         caajs = OsmosisPlugin.get_caajs(
             "osmo14ls9rcxxd5gqwshj85dae74tcp3umypp786h3m", transaction, token_table
