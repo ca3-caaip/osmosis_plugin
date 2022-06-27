@@ -3,11 +3,9 @@ import json
 import os
 from pathlib import Path
 from typing import Union
-from unittest.mock import MagicMock, patch
+from unittest.mock import MagicMock
 
-import requests
 from senkalib.platform.osmosis.osmosis_transaction import OsmosisTransaction
-from senkalib.token_original_id_table import TokenOriginalIdTable
 
 from osmosis_plugin.osmosis_plugin import OsmosisPlugin
 
@@ -53,99 +51,98 @@ class TestOsmosisPlugin:
         platform_type = OsmosisPlugin.can_handle(transaction)
         assert platform_type is False
 
-    @patch.object(csv, "DictReader")
-    @patch.object(requests, "get")
-    def test_get_caajs_fee_not_zero(self, get, DictReader):
-        get.side_effect = MagicMock()
-        csv_file = open(
-            Path(
-                "%s/data/token_original_ids/token_original_id.csv"
-                % os.path.dirname(__file__)
-            )
-        )
-        caaj_dict_list = csv.DictReader(csv_file)
-        DictReader.return_value = caaj_dict_list
-        test_data = TestOsmosisPlugin._get_test_data("ibc_transfer")
-        transaction = OsmosisTransaction(test_data)
-        # mock = TestOsmosisPlugin.get_token_table_mock()
-        token_table = TokenOriginalIdTable("")
-        caajs = OsmosisPlugin.get_caajs(
-            "osmo14ls9rcxxd5gqwshj85dae74tcp3umypp786h3m", transaction, token_table
-        )
-        assert caajs[1].executed_at == "2022-02-08 01:43:31"
-        assert caajs[1].platform == "osmosis"
-        assert caajs[1].application == "osmosis"
-        assert caajs[1].service == "osmosis"
-        assert (
-            caajs[1].transaction_id
-            == "AD666E0F5FB2D7DEF4B09E7BC31AF4BECB49EF76E948C4445AFF77EFFB4DEC6B"
-        )
-        assert caajs[1].type == "lose"
-        assert caajs[1].amount == "0.01"
-        assert caajs[1].token_symbol == "osmo"
-        assert caajs[1].token_original_id is None
-        assert caajs[1].caaj_from == "osmo14ls9rcxxd5gqwshj85dae74tcp3umypp786h3m"
-        assert caajs[1].caaj_to == "fee"
-        assert caajs[1].comment == ""
-
-    def test_get_caajs_fee_zero(self):
-        test_data = TestOsmosisPlugin._get_test_data("swap")
-        transaction = OsmosisTransaction(test_data)
-        mock = TestOsmosisPlugin.get_token_table_mock()
-        caajs = OsmosisPlugin.get_caajs(
-            "osmo14ls9rcxxd5gqwshj85dae74tcp3umypp786h3m", transaction, mock
-        )
-        assert len(caajs) == 2
-
-    def test_get_caajs_swap_get(self):
-        test_data = TestOsmosisPlugin._get_test_data("swap")
-        transaction = OsmosisTransaction(test_data)
-        mock = TestOsmosisPlugin.get_token_table_mock()
-        caajs = OsmosisPlugin.get_caajs(
-            "osmo14ls9rcxxd5gqwshj85dae74tcp3umypp786h3m", transaction, mock
-        )
-
-        assert caajs[0].executed_at == "2022-01-21 02:47:05"
-        assert caajs[0].platform == "osmosis"
-        assert caajs[0].application == "osmosis"
-        assert caajs[0].service == "swap"
-        assert (
-            caajs[0].transaction_id
-            == "97A5C4A33FA36397A342D34D576AC07BA3F5CB5B7274E2BAF7092470A681FDEB"
-        )
-        assert caajs[0].type == "lose"
-        assert caajs[0].amount == "0.01"
-        assert caajs[0].token_symbol == "osmo"
-        assert caajs[0].token_original_id is None
-        assert caajs[0].caaj_from == "osmo14ls9rcxxd5gqwshj85dae74tcp3umypp786h3m"
-        assert (
-            caajs[0].caaj_to
-            == "osmo1h7yfu7x4qsv2urnkl4kzydgxegdfyjdry5ee4xzj98jwz0uh07rqdkmprr"
-        )
-        assert caajs[0].comment == ""
-
-        assert caajs[1].executed_at == "2022-01-21 02:47:05"
-        assert caajs[1].platform == "osmosis"
-        assert caajs[1].application == "osmosis"
-        assert caajs[1].service == "swap"
-        assert (
-            caajs[1].transaction_id
-            == "97A5C4A33FA36397A342D34D576AC07BA3F5CB5B7274E2BAF7092470A681FDEB"
-        )
-        assert caajs[1].type == "get"
-        assert caajs[1].amount == "0.005147"
-        assert caajs[1].token_symbol == "juno"
-        assert (
-            caajs[1].token_original_id
-            == "ibc/46B44899322F3CD854D2D46DEEF881958467CDD4B3B10086DA49296BBED94BED"
-        )
-        assert caajs[1].caaj_to == "osmo14ls9rcxxd5gqwshj85dae74tcp3umypp786h3m"
-        assert (
-            caajs[1].caaj_from
-            == "osmo1h7yfu7x4qsv2urnkl4kzydgxegdfyjdry5ee4xzj98jwz0uh07rqdkmprr"
-        )
-        assert caajs[1].comment == ""
-        assert caajs[0].trade_uuid == caajs[1].trade_uuid
+    #    @patch.object(csv, "DictReader")
+    #    @patch.object(requests, "get")
+    #    def test_get_caajs_fee_not_zero(self, get, DictReader):
+    #        get.side_effect = MagicMock()
+    #        csv_file = open(
+    #            Path(
+    #                "%s/data/token_original_ids/token_original_id.csv"
+    #                % os.path.dirname(__file__)
+    #            )
+    #        )
+    #        caaj_dict_list = csv.DictReader(csv_file)
+    #        DictReader.return_value = caaj_dict_list
+    #        test_data = TestOsmosisPlugin._get_test_data("ibc_transfer")
+    #        transaction = OsmosisTransaction(test_data)
+    #        token_table = TokenOriginalIdTable("")
+    #        caajs = OsmosisPlugin.get_caajs(
+    #            "osmo14ls9rcxxd5gqwshj85dae74tcp3umypp786h3m", transaction, token_table
+    #        )
+    #        assert caajs[1].executed_at == "2022-02-08 01:43:31"
+    #        assert caajs[1].platform == "osmosis"
+    #        assert caajs[1].application == "osmosis"
+    #        assert caajs[1].service == "osmosis"
+    #        assert (
+    #            caajs[1].transaction_id
+    #            == "AD666E0F5FB2D7DEF4B09E7BC31AF4BECB49EF76E948C4445AFF77EFFB4DEC6B"
+    #        )
+    #        assert caajs[1].type == "lose"
+    #        assert caajs[1].amount == "0.01"
+    #        assert caajs[1].token_symbol == "osmo"
+    #        assert caajs[1].token_original_id is None
+    #        assert caajs[1].caaj_from == "osmo14ls9rcxxd5gqwshj85dae74tcp3umypp786h3m"
+    #        assert caajs[1].caaj_to == "fee"
+    #        assert caajs[1].comment == ""
+    #
+    #    def test_get_caajs_fee_zero(self):
+    #        test_data = TestOsmosisPlugin._get_test_data("swap")
+    #        transaction = OsmosisTransaction(test_data)
+    #        mock = TestOsmosisPlugin.get_token_table_mock()
+    #        caajs = OsmosisPlugin.get_caajs(
+    #            "osmo14ls9rcxxd5gqwshj85dae74tcp3umypp786h3m", transaction, mock
+    #        )
+    #        assert len(caajs) == 2
+    #
+    #    def test_get_caajs_swap_get(self):
+    #        test_data = TestOsmosisPlugin._get_test_data("swap")
+    #        transaction = OsmosisTransaction(test_data)
+    #        mock = TestOsmosisPlugin.get_token_table_mock()
+    #        caajs = OsmosisPlugin.get_caajs(
+    #            "osmo14ls9rcxxd5gqwshj85dae74tcp3umypp786h3m", transaction, mock
+    #        )
+    #
+    #        assert caajs[0].executed_at == "2022-01-21 02:47:05"
+    #        assert caajs[0].platform == "osmosis"
+    #        assert caajs[0].application == "osmosis"
+    #        assert caajs[0].service == "swap"
+    #        assert (
+    #            caajs[0].transaction_id
+    #            == "97A5C4A33FA36397A342D34D576AC07BA3F5CB5B7274E2BAF7092470A681FDEB"
+    #        )
+    #        assert caajs[0].type == "lose"
+    #        assert caajs[0].amount == "0.01"
+    #        assert caajs[0].token_symbol == "osmo"
+    #        assert caajs[0].token_original_id is None
+    #        assert caajs[0].caaj_from == "osmo14ls9rcxxd5gqwshj85dae74tcp3umypp786h3m"
+    #        assert (
+    #            caajs[0].caaj_to
+    #            == "osmo1h7yfu7x4qsv2urnkl4kzydgxegdfyjdry5ee4xzj98jwz0uh07rqdkmprr"
+    #        )
+    #        assert caajs[0].comment == ""
+    #
+    #        assert caajs[1].executed_at == "2022-01-21 02:47:05"
+    #        assert caajs[1].platform == "osmosis"
+    #        assert caajs[1].application == "osmosis"
+    #        assert caajs[1].service == "swap"
+    #        assert (
+    #            caajs[1].transaction_id
+    #            == "97A5C4A33FA36397A342D34D576AC07BA3F5CB5B7274E2BAF7092470A681FDEB"
+    #        )
+    #        assert caajs[1].type == "get"
+    #        assert caajs[1].amount == "0.005147"
+    #        assert caajs[1].token_symbol == "juno"
+    #        assert (
+    #            caajs[1].token_original_id
+    #            == "ibc/46B44899322F3CD854D2D46DEEF881958467CDD4B3B10086DA49296BBED94BED"
+    #        )
+    #        assert caajs[1].caaj_to == "osmo14ls9rcxxd5gqwshj85dae74tcp3umypp786h3m"
+    #        assert (
+    #            caajs[1].caaj_from
+    #            == "osmo1h7yfu7x4qsv2urnkl4kzydgxegdfyjdry5ee4xzj98jwz0uh07rqdkmprr"
+    #        )
+    #        assert caajs[1].comment == ""
+    #        assert caajs[0].trade_uuid == caajs[1].trade_uuid
 
     def test_get_caaj_transfer(self):
         test_data = TestOsmosisPlugin._get_test_data("ibc_transfer")

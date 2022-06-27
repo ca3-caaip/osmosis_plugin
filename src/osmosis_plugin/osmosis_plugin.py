@@ -99,27 +99,10 @@ class OsmosisPlugin:
 
             amounts = OsmosisPlugin._get_attribute_data(attribute, "amount")
             amount_to = OsmosisPlugin._get_token_amount(amounts[0]["value"])
-            token_original_id_to = OsmosisPlugin._get_token_original_id(
-                amounts[0]["value"]
-            )
-            token_symbol_to = token_table.get_symbol(
-                OsmosisPlugin.platform, token_original_id_to
-            )
-            symbol_uuid_to = token_table.get_symbol_uuid(
-                OsmosisPlugin.platform, token_original_id_to
-            )
+            uti_to = OsmosisPlugin._get_token_original_id(amounts[0]["value"])
 
             amount_from = OsmosisPlugin._get_token_amount(amounts[1]["value"])
-            token_original_id_from = OsmosisPlugin._get_token_original_id(
-                amounts[1]["value"]
-            )
-
-            token_symbol_from = token_table.get_symbol(
-                OsmosisPlugin.platform, token_original_id_from
-            )
-            symbol_uuid_from = token_table.get_symbol_uuid(
-                OsmosisPlugin.platform, token_original_id_from
-            )
+            uti_from = OsmosisPlugin._get_token_original_id(amounts[1]["value"])
 
             trade_uuid = OsmosisPlugin._get_uuid()
 
@@ -132,9 +115,7 @@ class OsmosisPlugin:
                 trade_uuid,
                 "lose",
                 amount_to,
-                token_symbol_to,
-                token_original_id_to,
-                symbol_uuid_to,
+                uti_to,
                 caaj_to,
                 caaj_from,
                 "",
@@ -149,9 +130,7 @@ class OsmosisPlugin:
                 trade_uuid,
                 "get",
                 amount_from,
-                token_symbol_from,
-                token_original_id_from,
-                symbol_uuid_from,
+                uti_from,
                 caaj_from,
                 caaj_to,
                 "",
