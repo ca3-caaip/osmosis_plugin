@@ -6,8 +6,12 @@ from typing import Union
 from unittest.mock import MagicMock, patch
 import requests
 
+<<<<<<< HEAD
 from senkalib.chain.osmosis.osmosis_transaction import OsmosisTransaction
 from senkalib.token_original_id_table import TokenOriginalIdTable
+=======
+from senkalib.platform.osmosis.osmosis_transaction import OsmosisTransaction
+>>>>>>> master
 
 from osmosis_plugin.osmosis_plugin import OsmosisPlugin
 
@@ -15,17 +19,17 @@ from osmosis_plugin.osmosis_plugin import OsmosisPlugin
 class TestOsmosisPlugin:
     @classmethod
     def get_token_table_mock(cls):
-        def mock_get_symbol(chain: str, token_original_id: str) -> Union[str, None]:
-            if chain == "osmosis" and token_original_id is None:
+        def mock_get_symbol(platform: str, token_original_id: str) -> Union[str, None]:
+            if platform == "osmosis" and token_original_id is None:
                 return "osmo"
             elif (
-                chain == "osmosis"
+                platform == "osmosis"
                 and token_original_id
                 == "ibc/46B44899322F3CD854D2D46DEEF881958467CDD4B3B10086DA49296BBED94BED"
             ):
                 return "juno"
             elif (
-                chain == "osmosis"
+                platform == "osmosis"
                 and token_original_id
                 == "ibc/27394FB092D2ECCD56123C74F36E4C1F926001CEADA9CA97EA622B25F41E5EB2"
             ):
@@ -33,7 +37,7 @@ class TestOsmosisPlugin:
             else:
                 return None
 
-        def mock_get_symbol_uuid(chain: str, token_original_id: str) -> str:
+        def mock_get_symbol_uuid(platform: str, token_original_id: str) -> str:
             return "3a2570c5-15c4-2860-52a8-bff14f27a236"
 
         mock = MagicMock()
@@ -44,14 +48,14 @@ class TestOsmosisPlugin:
     def test_can_handle_ibc_received(self):
         test_data = TestOsmosisPlugin._get_test_data("ibc_received_effect1")
         transaction = OsmosisTransaction(test_data)
-        chain_type = OsmosisPlugin.can_handle(transaction)
-        assert chain_type
+        platform_type = OsmosisPlugin.can_handle(transaction)
+        assert platform_type
 
     def test_can_handle_cosmos_transfer(self):
         test_data = TestOsmosisPlugin._get_test_data("cosmos_transfer")
         transaction = OsmosisTransaction(test_data)
-        chain_type = OsmosisPlugin.can_handle(transaction)
-        assert chain_type is False
+        platform_type = OsmosisPlugin.can_handle(transaction)
+        assert platform_type is False
 
     @patch.object(csv, "DictReader")
     @patch.object(requests, "get")
@@ -70,9 +74,9 @@ class TestOsmosisPlugin:
             "osmo14ls9rcxxd5gqwshj85dae74tcp3umypp786h3m", transaction, token_table
         )
         assert caajs[1].executed_at == "2022-02-08 01:43:31"
-        assert caajs[1].chain == "osmosis"
         assert caajs[1].platform == "osmosis"
         assert caajs[1].application == "osmosis"
+        assert caajs[1].service == "osmosis"
         assert (
             caajs[1].transaction_id
             == "AD666E0F5FB2D7DEF4B09E7BC31AF4BECB49EF76E948C4445AFF77EFFB4DEC6B"
@@ -103,9 +107,9 @@ class TestOsmosisPlugin:
         )
 
         assert caajs[0].executed_at == "2022-01-21 02:47:05"
-        assert caajs[0].chain == "osmosis"
         assert caajs[0].platform == "osmosis"
-        assert caajs[0].application == "swap"
+        assert caajs[0].application == "osmosis"
+        assert caajs[0].service == "swap"
         assert (
             caajs[0].transaction_id
             == "97A5C4A33FA36397A342D34D576AC07BA3F5CB5B7274E2BAF7092470A681FDEB"
@@ -122,9 +126,9 @@ class TestOsmosisPlugin:
         assert caajs[0].comment == ""
 
         assert caajs[1].executed_at == "2022-01-21 02:47:05"
-        assert caajs[1].chain == "osmosis"
         assert caajs[1].platform == "osmosis"
-        assert caajs[1].application == "swap"
+        assert caajs[1].application == "osmosis"
+        assert caajs[1].service == "swap"
         assert (
             caajs[1].transaction_id
             == "97A5C4A33FA36397A342D34D576AC07BA3F5CB5B7274E2BAF7092470A681FDEB"
@@ -152,9 +156,9 @@ class TestOsmosisPlugin:
             "osmo14ls9rcxxd5gqwshj85dae74tcp3umypp786h3m", transaction, mock
         )
         assert caajs[0].executed_at == "2022-02-08 01:43:31"
-        assert caajs[0].chain == "osmosis"
         assert caajs[0].platform == "osmosis"
         assert caajs[0].application == "osmosis"
+        assert caajs[0].service == "osmosis"
         assert (
             caajs[0].transaction_id
             == "AD666E0F5FB2D7DEF4B09E7BC31AF4BECB49EF76E948C4445AFF77EFFB4DEC6B"
@@ -179,9 +183,9 @@ class TestOsmosisPlugin:
             "osmo14ls9rcxxd5gqwshj85dae74tcp3umypp786h3m", transaction, mock
         )
         assert caajs[0].executed_at == "2022-01-21 02:50:09"
-        assert caajs[0].chain == "osmosis"
         assert caajs[0].platform == "osmosis"
-        assert caajs[0].application == "liquidity"
+        assert caajs[0].application == "osmosis"
+        assert caajs[0].service == "liquidity"
         assert (
             caajs[0].transaction_id
             == "266ADD2B17FCDD5BBEA5499EF863AC7463C45FB6F537E02FCCA8EE048255F4D2"
@@ -201,9 +205,9 @@ class TestOsmosisPlugin:
         assert caajs[0].comment == ""
 
         assert caajs[1].executed_at == "2022-01-21 02:50:09"
-        assert caajs[1].chain == "osmosis"
         assert caajs[1].platform == "osmosis"
-        assert caajs[1].application == "liquidity"
+        assert caajs[1].application == "osmosis"
+        assert caajs[1].service == "liquidity"
         assert (
             caajs[1].transaction_id
             == "266ADD2B17FCDD5BBEA5499EF863AC7463C45FB6F537E02FCCA8EE048255F4D2"
@@ -220,9 +224,9 @@ class TestOsmosisPlugin:
         assert caajs[1].comment == ""
 
         assert caajs[2].executed_at == "2022-01-21 02:50:09"
-        assert caajs[2].chain == "osmosis"
         assert caajs[2].platform == "osmosis"
-        assert caajs[2].application == "liquidity"
+        assert caajs[2].application == "osmosis"
+        assert caajs[2].service == "liquidity"
         assert (
             caajs[2].transaction_id
             == "266ADD2B17FCDD5BBEA5499EF863AC7463C45FB6F537E02FCCA8EE048255F4D2"
@@ -243,9 +247,9 @@ class TestOsmosisPlugin:
             "osmo14ls9rcxxd5gqwshj85dae74tcp3umypp786h3m", transaction, mock
         )
         assert caajs[0].executed_at == "2022-01-21 02:52:07"
-        assert caajs[0].chain == "osmosis"
         assert caajs[0].platform == "osmosis"
-        assert caajs[0].application == "staking"
+        assert caajs[0].application == "osmosis"
+        assert caajs[0].service == "staking"
         assert (
             caajs[0].transaction_id
             == "3BA4AB4FCD0DB71F9A7239B55F1DD189DD38BFEEAF6EFFDA3BD4552DE6A3DADE"
@@ -266,9 +270,9 @@ class TestOsmosisPlugin:
             "osmo14ls9rcxxd5gqwshj85dae74tcp3umypp786h3m", transaction, mock
         )
         assert caajs[0].executed_at == "2022-01-21 02:54:12"
-        assert caajs[0].chain == "osmosis"
         assert caajs[0].platform == "osmosis"
-        assert caajs[0].application == "liquidity"
+        assert caajs[0].application == "osmosis"
+        assert caajs[0].service == "liquidity"
         assert (
             caajs[0].transaction_id
             == "8AA91C46E026F135C18BC37DA813A1682F283EFF7E5AE60899F740DE58470FBB"
@@ -288,9 +292,9 @@ class TestOsmosisPlugin:
         assert caajs[0].comment == ""
 
         assert caajs[1].executed_at == "2022-01-21 02:54:12"
-        assert caajs[1].chain == "osmosis"
         assert caajs[1].platform == "osmosis"
-        assert caajs[1].application == "liquidity"
+        assert caajs[1].application == "osmosis"
+        assert caajs[1].service == "liquidity"
         assert (
             caajs[1].transaction_id
             == "8AA91C46E026F135C18BC37DA813A1682F283EFF7E5AE60899F740DE58470FBB"
@@ -307,9 +311,9 @@ class TestOsmosisPlugin:
         assert caajs[1].comment == ""
 
         assert caajs[2].executed_at == "2022-01-21 02:54:12"
-        assert caajs[2].chain == "osmosis"
         assert caajs[2].platform == "osmosis"
-        assert caajs[2].application == "liquidity"
+        assert caajs[2].application == "osmosis"
+        assert caajs[2].service == "liquidity"
         assert (
             caajs[2].transaction_id
             == "8AA91C46E026F135C18BC37DA813A1682F283EFF7E5AE60899F740DE58470FBB"
@@ -331,9 +335,9 @@ class TestOsmosisPlugin:
         )
 
         assert caajs[0].executed_at == "2022-01-31 09:15:23"
-        assert caajs[0].chain == "osmosis"
         assert caajs[0].platform == "osmosis"
-        assert caajs[0].application == "staking"
+        assert caajs[0].application == "osmosis"
+        assert caajs[0].service == "staking"
         assert (
             caajs[0].transaction_id
             == "04668DE27064363B86A1925F71B453C24B08862B5F5704399B6E478616874FED"
@@ -364,9 +368,9 @@ class TestOsmosisPlugin:
         )
 
         assert caajs[0].executed_at == "2022-01-20 06:39:04"
-        assert caajs[0].chain == "osmosis"
         assert caajs[0].platform == "osmosis"
         assert caajs[0].application == "osmosis"
+        assert caajs[0].service == "osmosis"
         assert (
             caajs[0].transaction_id
             == "727E12088812C7458061EB5B2284A9DBBBFBED15E3B4E174055912B8FE2F69D3"
