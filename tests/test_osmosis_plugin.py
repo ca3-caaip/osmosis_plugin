@@ -3,9 +3,11 @@ import json
 import os
 from pathlib import Path
 from typing import Union
-from unittest.mock import MagicMock
+from unittest.mock import MagicMock, patch
 
+import requests
 from senkalib.platform.osmosis.osmosis_transaction import OsmosisTransaction
+from senkalib.token_original_id_table import TokenOriginalIdTable
 
 from osmosis_plugin.osmosis_plugin import OsmosisPlugin
 
@@ -31,12 +33,34 @@ class TestOsmosisPlugin:
             else:
                 return None
 
-        def mock_get_symbol_uuid(platform: str, token_original_id: str) -> str:
-            return "3a2570c5-15c4-2860-52a8-bff14f27a236"
+        def mock_get_uti(platform: str, token_original_id: str) -> str:
+            if token_original_id == "osmo":
+                return "osmo/osmosis"
+            elif (
+                token_original_id
+                == "ibc/46B44899322F3CD854D2D46DEEF881958467CDD4B3B10086DA49296BBED94BED"
+            ):
+                return "juno/osmosis"
+            elif (
+                token_original_id
+                == "ibc/27394FB092D2ECCD56123C74F36E4C1F926001CEADA9CA97EA622B25F41E5EB2"
+            ):
+                return "atom/osmosis"
+            elif (
+                token_original_id
+                == "ibc/BE1BB42D4BE3C30D50B68D7C41DB4DFCE9678E8EF8C539F6E6A9345048894FCC"
+            ):
+                return "ust/osmosis"
+            elif token_original_id == "gamm/pool/497":
+                return "gamm%2Fpool%2F497/osmosis"
+            else:
+                raise ValueError(
+                    f"unknown token_original_id is given: {token_original_id}"
+                )
 
         mock = MagicMock()
         mock.get_symbol.side_effect = mock_get_symbol
-        mock.get_symbol_uuid.side_effect = mock_get_symbol_uuid
+        mock.get_uti.side_effect = mock_get_uti
         return mock
 
     def test_can_handle_ibc_received(self):
@@ -51,12 +75,23 @@ class TestOsmosisPlugin:
         platform_type = OsmosisPlugin.can_handle(transaction)
         assert platform_type is False
 
-    def test_get_caajs_fee_not_zero(self):
+    @patch.object(csv, "DictReader")
+    @patch.object(requests, "get")
+    def test_get_caajs_fee_not_zero(self, get, DictReader):
+        get.side_effect = MagicMock()
+        csv_file = open(
+            Path(
+                "%s/data/token_original_ids/token_original_id.csv"
+                % os.path.dirname(__file__)
+            )
+        )
+        caaj_dict_list = csv.DictReader(csv_file)
+        DictReader.return_value = caaj_dict_list
         test_data = TestOsmosisPlugin._get_test_data("ibc_transfer")
         transaction = OsmosisTransaction(test_data)
-        mock = TestOsmosisPlugin.get_token_table_mock()
+        token_table = TokenOriginalIdTable("")
         caajs = OsmosisPlugin.get_caajs(
-            "osmo14ls9rcxxd5gqwshj85dae74tcp3umypp786h3m", transaction, mock
+            "osmo14ls9rcxxd5gqwshj85dae74tcp3umypp786h3m", transaction, token_table
         )
         assert caajs[1].executed_at == "2022-02-08 01:43:31"
         assert caajs[1].platform == "osmosis"
@@ -68,8 +103,7 @@ class TestOsmosisPlugin:
         )
         assert caajs[1].type == "lose"
         assert caajs[1].amount == "0.01"
-        assert caajs[1].token_symbol == "osmo"
-        assert caajs[1].token_original_id is None
+        assert caajs[1].uti == "osmo/osmosis"
         assert caajs[1].caaj_from == "osmo14ls9rcxxd5gqwshj85dae74tcp3umypp786h3m"
         assert caajs[1].caaj_to == "fee"
         assert caajs[1].comment == ""
@@ -90,7 +124,6 @@ class TestOsmosisPlugin:
         caajs = OsmosisPlugin.get_caajs(
             "osmo14ls9rcxxd5gqwshj85dae74tcp3umypp786h3m", transaction, mock
         )
-
         assert caajs[0].executed_at == "2022-01-21 02:47:05"
         assert caajs[0].platform == "osmosis"
         assert caajs[0].application == "osmosis"
@@ -101,8 +134,7 @@ class TestOsmosisPlugin:
         )
         assert caajs[0].type == "lose"
         assert caajs[0].amount == "0.01"
-        assert caajs[0].token_symbol == "osmo"
-        assert caajs[0].token_original_id is None
+        assert caajs[0].uti == "osmo/osmosis"
         assert caajs[0].caaj_from == "osmo14ls9rcxxd5gqwshj85dae74tcp3umypp786h3m"
         assert (
             caajs[0].caaj_to
@@ -120,11 +152,7 @@ class TestOsmosisPlugin:
         )
         assert caajs[1].type == "get"
         assert caajs[1].amount == "0.005147"
-        assert caajs[1].token_symbol == "juno"
-        assert (
-            caajs[1].token_original_id
-            == "ibc/46B44899322F3CD854D2D46DEEF881958467CDD4B3B10086DA49296BBED94BED"
-        )
+        assert caajs[1].uti == "juno/osmosis"
         assert caajs[1].caaj_to == "osmo14ls9rcxxd5gqwshj85dae74tcp3umypp786h3m"
         assert (
             caajs[1].caaj_from
@@ -150,11 +178,7 @@ class TestOsmosisPlugin:
         )
         assert caajs[0].type == "send"
         assert caajs[0].amount == "0.000049"
-        assert caajs[0].token_symbol == "juno"
-        assert (
-            caajs[0].token_original_id
-            == "ibc/46B44899322F3CD854D2D46DEEF881958467CDD4B3B10086DA49296BBED94BED"
-        )
+        assert caajs[0].uti == "juno/osmosis"
         assert caajs[0].caaj_from == "osmo14ls9rcxxd5gqwshj85dae74tcp3umypp786h3m"
         assert caajs[0].caaj_to == "juno14ls9rcxxd5gqwshj85dae74tcp3umyppqw2uq4"
         assert caajs[0].comment == ""
@@ -177,11 +201,7 @@ class TestOsmosisPlugin:
         )
         assert caajs[0].type == "deposit"
         assert caajs[0].amount == "0.005146"
-        assert caajs[0].token_symbol == "juno"
-        assert (
-            caajs[0].token_original_id
-            == "ibc/46B44899322F3CD854D2D46DEEF881958467CDD4B3B10086DA49296BBED94BED"
-        )
+        assert caajs[0].uti == "juno/osmosis"
         assert caajs[0].caaj_from == "osmo14ls9rcxxd5gqwshj85dae74tcp3umypp786h3m"
         assert (
             caajs[0].caaj_to
@@ -199,8 +219,7 @@ class TestOsmosisPlugin:
         )
         assert caajs[1].type == "deposit"
         assert caajs[1].amount == "0.009969"
-        assert caajs[1].token_symbol == "osmo"
-        assert caajs[1].token_original_id is None
+        assert caajs[1].uti == "osmo/osmosis"
         assert caajs[1].caaj_from == "osmo14ls9rcxxd5gqwshj85dae74tcp3umypp786h3m"
         assert (
             caajs[1].caaj_to
@@ -218,8 +237,7 @@ class TestOsmosisPlugin:
         )
         assert caajs[2].type == "get_bonds"
         assert caajs[2].amount == "0.004323192512586978"
-        assert caajs[2].token_symbol is None
-        assert caajs[2].token_original_id == "gamm/pool/497"
+        assert caajs[2].uti == "gamm%2Fpool%2F497/osmosis"
         assert caajs[2].caaj_from == "osmo1c9y7crgg6y9pfkq0y8mqzknqz84c3etr0kpcvj"
         assert caajs[2].caaj_to == "osmo14ls9rcxxd5gqwshj85dae74tcp3umypp786h3m"
         assert caajs[2].comment == ""
@@ -241,8 +259,7 @@ class TestOsmosisPlugin:
         )
         assert caajs[0].type == "deposit"
         assert caajs[0].amount == "0.002"
-        assert caajs[0].token_symbol is None
-        assert caajs[0].token_original_id == "gamm/pool/497"
+        assert caajs[0].uti == "gamm%2Fpool%2F497/osmosis"
         assert caajs[0].caaj_from == "osmo14ls9rcxxd5gqwshj85dae74tcp3umypp786h3m"
         assert caajs[0].caaj_to == "osmo1njty28rqtpw6n59sjj4esw76enp4mg6g7cwrhc"
         assert caajs[0].comment == ""
@@ -264,11 +281,7 @@ class TestOsmosisPlugin:
         )
         assert caajs[0].type == "withdraw"
         assert caajs[0].amount == "0.001382"
-        assert caajs[0].token_symbol == "juno"
-        assert (
-            caajs[0].token_original_id
-            == "ibc/46B44899322F3CD854D2D46DEEF881958467CDD4B3B10086DA49296BBED94BED"
-        )
+        assert caajs[0].uti == "juno/osmosis"
         assert (
             caajs[0].caaj_from
             == "osmo1h7yfu7x4qsv2urnkl4kzydgxegdfyjdry5ee4xzj98jwz0uh07rqdkmprr"
@@ -286,8 +299,7 @@ class TestOsmosisPlugin:
         )
         assert caajs[1].type == "withdraw"
         assert caajs[1].amount == "0.002678"
-        assert caajs[1].token_symbol == "osmo"
-        assert caajs[1].token_original_id is None
+        assert caajs[1].uti == "osmo/osmosis"
         assert caajs[1].caaj_to == "osmo14ls9rcxxd5gqwshj85dae74tcp3umypp786h3m"
         assert (
             caajs[1].caaj_from
@@ -305,8 +317,7 @@ class TestOsmosisPlugin:
         )
         assert caajs[2].type == "lose_bonds"
         assert caajs[2].amount == "0.001161596256293489"
-        assert caajs[2].token_symbol is None
-        assert caajs[2].token_original_id == "gamm/pool/497"
+        assert caajs[2].uti == "gamm%2Fpool%2F497/osmosis"
         assert caajs[2].caaj_from == "osmo14ls9rcxxd5gqwshj85dae74tcp3umypp786h3m"
         assert caajs[2].caaj_to == "osmo1c9y7crgg6y9pfkq0y8mqzknqz84c3etr0kpcvj"
         assert caajs[2].comment == ""
@@ -329,8 +340,7 @@ class TestOsmosisPlugin:
         )
         assert caajs[0].type == "deposit"
         assert caajs[0].amount == "0.1"
-        assert caajs[0].token_symbol == "osmo"
-        assert caajs[0].token_original_id is None
+        assert caajs[0].uti == "osmo/osmosis"
         assert caajs[0].caaj_from == "osmo14ls9rcxxd5gqwshj85dae74tcp3umypp786h3m"
         assert caajs[0].caaj_to == "osmovaloper1clpqr4nrk4khgkxj78fcwwh6dl3uw4ep88n0y4"
         assert caajs[0].comment == ""
@@ -362,11 +372,7 @@ class TestOsmosisPlugin:
         )
         assert caajs[0].type == "receive"
         assert caajs[0].amount == "0.25"
-        assert caajs[0].token_symbol == "atom"
-        assert (
-            caajs[0].token_original_id
-            == "ibc/27394FB092D2ECCD56123C74F36E4C1F926001CEADA9CA97EA622B25F41E5EB2"
-        )
+        assert caajs[0].uti == "atom/osmosis"
         assert caajs[0].caaj_from == "osmo1yl6hdjhmkf37639730gffanpzndzdpmhxy9ep3"
         assert caajs[0].caaj_to == "osmo14ls9rcxxd5gqwshj85dae74tcp3umypp786h3m"
         assert caajs[0].comment == ""
@@ -388,11 +394,11 @@ class TestOsmosisPlugin:
 
     def test_get_token_original_id_uosmo(self):
         token_original_id = OsmosisPlugin._get_token_original_id("4900uosmo")
-        assert token_original_id is None
+        assert token_original_id == "osmo"
 
     def test_get_token_original_id_uion(self):
         token_original_id = OsmosisPlugin._get_token_original_id("4900uion")
-        assert token_original_id is None
+        assert token_original_id == "ion"
 
     def test_get_attributes_list(self):
         test_data = TestOsmosisPlugin._get_test_data("join_pool")

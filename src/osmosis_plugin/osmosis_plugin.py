@@ -102,22 +102,13 @@ class OsmosisPlugin:
             token_original_id_to = OsmosisPlugin._get_token_original_id(
                 amounts[0]["value"]
             )
-            token_symbol_to = token_table.get_symbol(
-                OsmosisPlugin.platform, token_original_id_to
-            )
-            symbol_uuid_to = token_table.get_symbol_uuid(
-                OsmosisPlugin.platform, token_original_id_to
-            )
+            uti_to = token_table.get_uti(OsmosisPlugin.platform, token_original_id_to)
 
             amount_from = OsmosisPlugin._get_token_amount(amounts[1]["value"])
             token_original_id_from = OsmosisPlugin._get_token_original_id(
                 amounts[1]["value"]
             )
-
-            token_symbol_from = token_table.get_symbol(
-                OsmosisPlugin.platform, token_original_id_from
-            )
-            symbol_uuid_from = token_table.get_symbol_uuid(
+            uti_from = token_table.get_uti(
                 OsmosisPlugin.platform, token_original_id_from
             )
 
@@ -132,9 +123,7 @@ class OsmosisPlugin:
                 trade_uuid,
                 "lose",
                 amount_to,
-                token_symbol_to,
-                token_original_id_to,
-                symbol_uuid_to,
+                uti_to,
                 caaj_to,
                 caaj_from,
                 "",
@@ -149,9 +138,7 @@ class OsmosisPlugin:
                 trade_uuid,
                 "get",
                 amount_from,
-                token_symbol_from,
-                token_original_id_from,
-                symbol_uuid_from,
+                uti_from,
                 caaj_from,
                 caaj_to,
                 "",
@@ -167,10 +154,7 @@ class OsmosisPlugin:
         caaj = []
         message = transaction.get_transaction()["data"]["tx"]["body"]["messages"][0]
         token_original_id = message["token"]["denom"]
-        symbol = token_table.get_symbol(OsmosisPlugin.platform, token_original_id)
-        symbol_uuid = token_table.get_symbol_uuid(
-            OsmosisPlugin.platform, token_original_id
-        )
+        uti = token_table.get_uti(OsmosisPlugin.platform, token_original_id)
 
         caaj_journal_lose = CaajJournal(
             transaction.get_timestamp(),
@@ -181,9 +165,7 @@ class OsmosisPlugin:
             None,
             "send",
             str(Decimal(message["token"]["amount"]) / Decimal(MEGA)),
-            symbol,
-            token_original_id,
-            symbol_uuid,
+            uti,
             message["sender"],
             message["receiver"],
             "",
@@ -215,18 +197,9 @@ class OsmosisPlugin:
                 amounts[0]["value"].split(",")[1]
             )
 
-            token_symbol_one = token_table.get_symbol(
-                OsmosisPlugin.platform, token_original_id_one
-            )
-            symbol_uuid_one = token_table.get_symbol_uuid(
-                OsmosisPlugin.platform, token_original_id_one
-            )
-            token_symbol_two = token_table.get_symbol(
-                OsmosisPlugin.platform, token_original_id_two
-            )
-            symbol_uuid_two = token_table.get_symbol_uuid(
-                OsmosisPlugin.platform, token_original_id_two
-            )
+            uti_one = token_table.get_uti(OsmosisPlugin.platform, token_original_id_one)
+
+            uti_two = token_table.get_uti(OsmosisPlugin.platform, token_original_id_two)
 
             trade_uuid = OsmosisPlugin._get_uuid()
 
@@ -239,9 +212,7 @@ class OsmosisPlugin:
                 trade_uuid,
                 "deposit",
                 str(Decimal(amount_one)),
-                token_symbol_one,
-                OsmosisPlugin._get_token_original_id(amounts[0]["value"].split(",")[0]),
-                symbol_uuid_one,
+                uti_one,
                 senders[0]["value"],
                 recipients[0]["value"],
                 "",
@@ -255,9 +226,7 @@ class OsmosisPlugin:
                 trade_uuid,
                 "deposit",
                 str(Decimal(amount_two)),
-                token_symbol_two,
-                OsmosisPlugin._get_token_original_id(amounts[0]["value"].split(",")[1]),
-                symbol_uuid_two,
+                uti_two,
                 senders[0]["value"],
                 recipients[0]["value"],
                 "",
@@ -267,6 +236,9 @@ class OsmosisPlugin:
 
             token_original_id_liquidity = OsmosisPlugin._get_token_original_id(
                 amounts[1]["value"]
+            )
+            uti_liquidity = token_table.get_uti(
+                OsmosisPlugin.platform, token_original_id_liquidity
             )
 
             amount_liquidity = OsmosisPlugin._get_token_amount(amounts[1]["value"])
@@ -280,9 +252,7 @@ class OsmosisPlugin:
                 trade_uuid,
                 "get_bonds",
                 amount_liquidity,
-                None,
-                token_original_id_liquidity,
-                None,
+                uti_liquidity,
                 senders[1]["value"],
                 recipients[1]["value"],
                 "",
@@ -305,10 +275,7 @@ class OsmosisPlugin:
                 amounts[0]["value"]
             )
 
-            token_symbol_liquidity = token_table.get_symbol(
-                OsmosisPlugin.platform, token_original_id_liquidity
-            )
-            symbol_uuid_liquidity = token_table.get_symbol_uuid(
+            uti_liquidity = token_table.get_uti(
                 OsmosisPlugin.platform, token_original_id_liquidity
             )
             amount_liquidity = OsmosisPlugin._get_token_amount(amounts[0]["value"])
@@ -322,9 +289,7 @@ class OsmosisPlugin:
                 OsmosisPlugin._get_uuid(),
                 "deposit",
                 amount_liquidity,
-                token_symbol_liquidity,
-                token_original_id_liquidity,
-                symbol_uuid_liquidity,
+                uti_liquidity,
                 senders[0]["value"],
                 recipients[0]["value"],
                 "",
@@ -349,12 +314,7 @@ class OsmosisPlugin:
             token_original_id_one = OsmosisPlugin._get_token_original_id(
                 amounts[0]["value"].split(",")[0]
             )
-            token_symbol_one = token_table.get_symbol(
-                OsmosisPlugin.platform, token_original_id_one
-            )
-            symbol_uuid_one = token_table.get_symbol_uuid(
-                OsmosisPlugin.platform, token_original_id_one
-            )
+            uti_one = token_table.get_uti(OsmosisPlugin.platform, token_original_id_one)
 
             trade_uuid = OsmosisPlugin._get_uuid()
 
@@ -367,9 +327,7 @@ class OsmosisPlugin:
                 trade_uuid,
                 "withdraw",
                 str(Decimal(amount_one)),
-                token_symbol_one,
-                token_original_id_one,
-                symbol_uuid_one,
+                uti_one,
                 senders[0]["value"],
                 recipients[0]["value"],
                 "",
@@ -383,12 +341,7 @@ class OsmosisPlugin:
             token_original_id_two = OsmosisPlugin._get_token_original_id(
                 amounts[0]["value"].split(",")[1]
             )
-            token_symbol_two = token_table.get_symbol(
-                OsmosisPlugin.platform, token_original_id_two
-            )
-            symbol_uuid_two = token_table.get_symbol_uuid(
-                OsmosisPlugin.platform, token_original_id_two
-            )
+            uti_two = token_table.get_uti(OsmosisPlugin.platform, token_original_id_two)
 
             caaj_journal_lose_two = CaajJournal(
                 transaction.get_timestamp(),
@@ -399,9 +352,7 @@ class OsmosisPlugin:
                 trade_uuid,
                 "withdraw",
                 str(Decimal(amount_two)),
-                token_symbol_two,
-                token_original_id_two,
-                symbol_uuid_two,
+                uti_two,
                 senders[0]["value"],
                 recipients[0]["value"],
                 "",
@@ -412,10 +363,7 @@ class OsmosisPlugin:
                 amounts[1]["value"]
             )
 
-            token_symbol_liquidity = token_table.get_symbol(
-                OsmosisPlugin.platform, token_original_id_liquidity
-            )
-            symbol_uuid_liquidity = token_table.get_symbol_uuid(
+            uti_liquidity = token_table.get_uti(
                 OsmosisPlugin.platform, token_original_id_liquidity
             )
             amount_liquidity = OsmosisPlugin._get_token_amount(amounts[1]["value"])
@@ -429,9 +377,7 @@ class OsmosisPlugin:
                 trade_uuid,
                 "lose_bonds",
                 amount_liquidity,
-                token_symbol_liquidity,
-                token_original_id_liquidity,
-                symbol_uuid_liquidity,
+                uti_liquidity,
                 senders[1]["value"],
                 recipients[1]["value"],
                 "",
@@ -458,10 +404,7 @@ class OsmosisPlugin:
             token_original_id_staking = OsmosisPlugin._get_token_original_id(
                 amounts[0]["value"]
             )
-            token_symbol_staking = token_table.get_symbol(
-                OsmosisPlugin.platform, token_original_id_staking
-            )
-            symbol_uuid_staking = token_table.get_symbol_uuid(
+            uti_staking = token_table.get_uti(
                 OsmosisPlugin.platform, token_original_id_staking
             )
             amount_liquidity = OsmosisPlugin._get_token_amount(amounts[0]["value"])
@@ -475,9 +418,7 @@ class OsmosisPlugin:
                 OsmosisPlugin._get_uuid(),
                 "deposit",
                 amount_liquidity,
-                token_symbol_staking,
-                token_original_id_staking,
-                symbol_uuid_staking,
+                uti_staking,
                 caaj_from,
                 caaj_to,
                 "",
@@ -535,11 +476,7 @@ class OsmosisPlugin:
                     token_original_id_liquidity = OsmosisPlugin._get_token_original_id(
                         amounts[0]["value"]
                     )
-
-                    token_symbol_liquidity = token_table.get_symbol(
-                        OsmosisPlugin.platform, token_original_id_liquidity
-                    )
-                    symbol_uuid_liquidity = token_table.get_symbol_uuid(
+                    uti_liquidity = token_table.get_uti(
                         OsmosisPlugin.platform, token_original_id_liquidity
                     )
                     amount_liquidity = OsmosisPlugin._get_token_amount(
@@ -555,9 +492,7 @@ class OsmosisPlugin:
                         OsmosisPlugin._get_uuid(),
                         "receive",
                         amount_liquidity,
-                        token_symbol_liquidity,
-                        token_original_id_liquidity,
-                        symbol_uuid_liquidity,
+                        uti_liquidity,
                         caaj_from,
                         caaj_to,
                         "",
@@ -579,9 +514,7 @@ class OsmosisPlugin:
             None,
             "lose",
             str(transaction.get_transaction_fee() / Decimal(MEGA)),
-            "osmo",
-            None,
-            "c0c8e177-53c3-c408-d8bd-067a2ef41ea7",
+            "osmo/osmosis",
             address,
             "fee",
             "",
@@ -614,9 +547,9 @@ class OsmosisPlugin:
 
         token_original_id = value[token_original_id_original.end() :]
         if token_original_id == "uosmo" or token_original_id == "":
-            token_original_id = None
+            token_original_id = "osmo"
         elif token_original_id == "uion":
-            token_original_id = None
+            token_original_id = "ion"
         return token_original_id
 
     @classmethod
